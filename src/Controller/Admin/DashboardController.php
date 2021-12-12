@@ -32,7 +32,7 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linktoDashboard('Dashboard', 'fa fa-home');
         yield MenuItem::linkToCrud('Missions', 'fas fa-tags', Task::class);
         yield MenuItem::linkToCrud(
-            !in_array('ROLE_ADMIN', $this->getUser()->getRoles()) ? 'Modifier mon profil' : 'Utilisateurs et super héros',
+            !in_array('ROLE_ADMIN', $this->getUser()->getRoles()) ? 'Modifier mon profil ' : 'Utilisateurs et super héros',
         'fas fa-tags', User::class);
         yield MenuItem::linkToCrud('Méchants', 'fas fa-tags', Evils::class)->setPermission('ROLE_ADMIN');
     }
