@@ -44,6 +44,6 @@ security:
 
     access_control:
         - { path: ^/api/docs, roles: IS_AUTHENTICATED_ANONYMOUSLY } # Allows accessing the Swagger UI
-        - { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/api/tasks, roles: IS_AUTHENTICATED_FULLY }
-        - { path: ^/admin, roles: [ROLE_ADMIN, ROLE_USER] }
+        - { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY } # Allows accessing endpoint for everyone without JWT Token
+        - { path: ^/api/tasks, roles: IS_AUTHENTICATED_FULLY } # Allows accessing tasks endpoints only if you have JWT Token
+        - { path: ^/admin, roles: [ROLE_ADMIN, ROLE_USER] } # Allows accessing admin back office if you are admin or user

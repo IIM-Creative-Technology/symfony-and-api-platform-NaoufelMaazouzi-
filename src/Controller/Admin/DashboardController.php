@@ -27,6 +27,7 @@ class DashboardController extends AbstractDashboardController
             ->setTitle('Api Plateform');
     }
 
+    // Add Menu Items for sidebar to access CRUD 
     public function configureMenuItems(): iterable
     {
         yield MenuItem::linktoDashboard('Dashboard', 'fa fa-home');

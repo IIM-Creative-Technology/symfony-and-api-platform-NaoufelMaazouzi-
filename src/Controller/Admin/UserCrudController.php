@@ -61,7 +61,7 @@ class UserCrudController extends AbstractCrudController
 
     public function configureFields(string $pageName): iterable
     {
-
+        // Add field to reset password of user
         $password = TextField::new('clearpassword')
             ->setLabel("Nouveau mot de passe")
             ->setFormType(PasswordType::class)
@@ -70,6 +70,7 @@ class UserCrudController extends AbstractCrudController
             ->setHelp('Si vous e voulez pas modifier le mot de passe, laissez ce champ vide')
             ->hideOnIndex();
 
+        // Add Fields to edit
         return [
             TextField::new('email'),
             TextField::new('name'),
@@ -86,7 +87,6 @@ class UserCrudController extends AbstractCrudController
 
             $clearPassword = trim($this->get('request_stack')->getCurrentRequest()->request->all()['User']['clearpassword']);
 
-
             // save password only if is set a new clearpass
             if ( !empty($clearPassword) ) {
                 $encodedPassword = $this->passwordEncoder->encodePassword($this->getUser(), $clearPassword);
@@ -101,6 +101,7 @@ class UserCrudController extends AbstractCrudController
     {
 
         $qb = $this->get(EntityRepository::class)->createQueryBuilder($searchDto, $entityDto, $fields, $filters);
+        // If the user is client or superHero (not admin role), display only his profil data
         if (!in_array('ROLE_ADMIN', $this->getUser()->getRoles())) {
             $qb->andWhere('entity.id = :id');
             $qb->setParameter('id', $this->getUser()->getId());
@@ -114,7 +115,8 @@ class UserCrudController extends AbstractCrudController
         return $actions->update(Crud::PAGE_INDEX, Action::DELETE, function (Action $action) {
                 $that = $this;
                 return $action->displayIf(static function ($entity) use ($that) {
-                        return in_array('ROLE_ADMIN', $that->getUser()->getRoles());
+                    // If user has admin role, display the DELETE button
+                    return in_array('ROLE_ADMIN', $that->getUser()->getRoles());
             });
         });
     }

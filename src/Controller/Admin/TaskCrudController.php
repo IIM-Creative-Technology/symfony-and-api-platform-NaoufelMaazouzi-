@@ -28,6 +28,7 @@ class TaskCrudController extends AbstractCrudController
     
     public function configureFields(string $pageName): iterable
     {
+        // Add Fields to edit according to user roles
         $fields = [];
         if(!in_array('ROLE_SUPER_HERO', $this->getUser()->getRoles())) {
             $fields = [
@@ -37,6 +38,7 @@ class TaskCrudController extends AbstractCrudController
                 AssociationField::new('client', 'Client')->setFormTypeOption('attr', ['required' => 'required'])->setRequired(true),
                 AssociationField::new('superHero')->setFormTypeOptions([
                     'query_builder' => function (UserRepository $er) {
+                        // Get only super heros from users table
                         return $er->createQueryBuilder('u')
                             ->andWhere('u.roles = :role')
                             ->setParameter('role', json_encode(array("ROLE_SUPER_HERO")));
@@ -48,6 +50,7 @@ class TaskCrudController extends AbstractCrudController
         }
         array_push(
             $fields,
+            // Add realisation date & status fields for every user
             DateTimeField::new('realisationDate', 'Date de réalisation'),
             AssociationField::new('status', 'Statut de la mission')->setFormTypeOption('attr', ['required' => 'required'])->setRequired(true)
         );
@@ -56,6 +59,7 @@ class TaskCrudController extends AbstractCrudController
 
     public function createIndexQueryBuilder(SearchDto $searchDto, EntityDto $entityDto, FieldCollection $fields, FilterCollection $filters): QueryBuilder
     {
+        // If user has user role get only hismissions and if user has superHero role get only missions with status 'A valider'
         $qb = $this->get(EntityRepository::class)->createQueryBuilder($searchDto, $entityDto, $fields, $filters);
         if (['ROLE_USER'] == $this->getUser()->getRoles()) {
             $qb->andWhere('entity.client = :user');
@@ -65,7 +69,6 @@ class TaskCrudController extends AbstractCrudController
             $qb->andWhere('status.name != :name');
             $qb->setParameter('name', 'A valider');
         }
-
         return $qb;
     }
 
@@ -74,18 +77,21 @@ class TaskCrudController extends AbstractCrudController
         return $actions->update(Crud::PAGE_INDEX, Action::EDIT, function (Action $action) {
             $that = $this;
             return $action->displayIf(static function ($entity) use ($that) {
+                // If user has superHero role, display EDIT button
                 if(in_array('ROLE_SUPER_HERO', $that->getUser()->getRoles())) {
                     return true;
                 } else {
+                    // If user has not superHero role, display EDIT button only if the status of mission is 'A valider'
                     return $entity->getStatus()->getName() == 'A valider';
                 }
         });
     })
     ->update(Crud::PAGE_INDEX, Action::DELETE, function (Action $action) {
-        return $action->displayIf(static function ($entity) {
-                 return in_array($entity->getStatus()->getName(), ['A valider','A faire']);
-    });
-});
+                return $action->displayIf(static function ($entity) {
+                    // Display DELETE button only if the status of mission is 'A valider' or 'A faire'
+                    return in_array($entity->getStatus()->getName(), ['A valider','A faire']);
+            });
+        });
     }
     
 }

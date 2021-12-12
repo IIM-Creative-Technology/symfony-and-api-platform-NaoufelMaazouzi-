@@ -163,8 +163,6 @@ class Task
     public function addEvil(Evils $evil): self
     {
         $this->evils->add($evil);
-        // $this->evils[] = $evil;
-        // $this->evils->add($evil);
         $evil->setTask($this);
 
         return $this;
